@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.IO;
+using Newtonsoft.Json;
+using System.Drawing;
 
 namespace LocalStickyNotes
 {
     public partial class Form1 : Form
     {
-        private string noteFilePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "sticky_note.txt");
+        private string noteFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "sticky_note.txt");
+        private string settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "sticky_notes_settings.json");
         private bool isDragging = false;
         private int mouseX, mouseY;
         private Stack<string> undoStack = new Stack<string>(); // Store previous states for undo
@@ -15,14 +19,27 @@ namespace LocalStickyNotes
         private string lastSavedState = ""; // Track the last saved state
         private bool isPinned = true; // Track pin state
 
+        // Settings class to save form size, position, and font size
+        private class AppSettings
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public int Left { get; set; }
+            public int Top { get; set; }
+            public float FontSize { get; set; }
+        }
+
         public Form1()
         {
             InitializeComponent();
+            LoadSettings(); // Load size, position, and font size
             LoadNote();
             this.TopMost = true; // Always on top by default
             this.BackColor = System.Drawing.Color.LightYellow; // Form background
             titleBarPanel.BackColor = System.Drawing.Color.DarkGray; // Title bar color
-            this.Opacity = 1.0; // Default opacity (fully opaque)
+            titleBarPanel.Height = 30; // Fixed title bar height
+            this.Opacity = 1.0; // Default opacity
+            this.FormBorderStyle = FormBorderStyle.None; // Ensure borderless
 
             // Make the title bar draggable
             titleBarPanel.MouseDown += TitleBarPanel_MouseDown;
@@ -31,6 +48,11 @@ namespace LocalStickyNotes
 
             // Hook up the TextChanged event
             txtNote.TextChanged += TxtNote_TextChanged;
+
+            // Enable scrolling in TextBox, disable word wrap
+            txtNote.ScrollBars = ScrollBars.Vertical;
+            txtNote.Multiline = true; // Ensure multiline is enabled for scrolling
+            txtNote.WordWrap = false; // Disable automatic wrapping
 
             // Optional: Hook up the close button
             if (btnClose != null)
@@ -42,10 +64,10 @@ namespace LocalStickyNotes
             if (btnPin != null)
             {
                 btnPin.Click += BtnPin_Click;
-                btnPin.Text = "📌"; // Pin icon (use a Unicode pin symbol)
+                btnPin.Text = "📌"; // Pin icon
             }
 
-            // Enable key handling for Ctrl+Z, Ctrl+Y, and Ctrl+T
+            // Enable key handling for Ctrl+Z, Ctrl+Y, Ctrl+T, Ctrl+- and Ctrl+=
             this.KeyPreview = true; // Allow the form to capture key events before controls
             this.KeyDown += Form1_KeyDown;
 
@@ -54,11 +76,43 @@ namespace LocalStickyNotes
             lastSavedState = txtNote.Text; // Initialize last saved state
         }
 
+        private void LoadSettings()
+        {
+            if (File.Exists(settingsFilePath))
+            {
+                string json = File.ReadAllText(settingsFilePath);
+                var settings = JsonConvert.DeserializeObject<AppSettings>(json);
+                if (settings != null)
+                {
+                    this.Width = 284;
+                    this.Height = 461;
+                    txtNote.Font = new System.Drawing.Font(txtNote.Font.Name, settings.FontSize);
+                }
+            }
+            else
+            {
+                // Default values if no settings file exists
+                this.Width = 284;
+                this.Height = 461;
+                txtNote.Font = new System.Drawing.Font(txtNote.Font.Name, 10f);
+            }
+        }
+
+        private void SaveSettings()
+        {
+            var settings = new AppSettings
+            {
+                FontSize = txtNote.Font.Size
+            };
+            string json = JsonConvert.SerializeObject(settings);
+            File.WriteAllText(settingsFilePath, json);
+        }
+
         private void LoadNote()
         {
-            if (System.IO.File.Exists(noteFilePath))
+            if (File.Exists(noteFilePath))
             {
-                txtNote.Text = System.IO.File.ReadAllText(noteFilePath);
+                txtNote.Text = File.ReadAllText(noteFilePath);
                 txtNote.SelectionStart = 0; // Prevent highlighting
                 txtNote.SelectionLength = 0;
             }
@@ -66,7 +120,7 @@ namespace LocalStickyNotes
 
         private void SaveNote()
         {
-            System.IO.File.WriteAllText(noteFilePath, txtNote.Text);
+            File.WriteAllText(noteFilePath, txtNote.Text);
         }
 
         private void TxtNote_TextChanged(object sender, EventArgs e)
@@ -104,6 +158,18 @@ namespace LocalStickyNotes
                 e.SuppressKeyPress = true;
                 CycleTransparency();
             }
+            // Handle Ctrl+= (increase font size)
+            else if (e.Control && (e.KeyCode == Keys.Oemplus || e.KeyCode == Keys.Add))
+            {
+                e.SuppressKeyPress = true;
+                ChangeFontSize(1f); // Increase by 1
+            }
+            // Handle Ctrl+- (decrease font size)
+            else if (e.Control && (e.KeyCode == Keys.OemMinus || e.KeyCode == Keys.Subtract))
+            {
+                e.SuppressKeyPress = true;
+                ChangeFontSize(-1f); // Decrease by 1
+            }
         }
 
         private void CycleTransparency()
@@ -116,11 +182,21 @@ namespace LocalStickyNotes
             this.Opacity = opacityLevels[nextIndex];
         }
 
+        private void ChangeFontSize(float delta)
+        {
+            float newSize = txtNote.Font.Size + delta;
+            if (newSize >= 6f && newSize <= 72f) // Reasonable font size limits
+            {
+                txtNote.Font = new System.Drawing.Font(txtNote.Font.Name, newSize);
+                SaveSettings(); // Save new font size
+            }
+        }
+
         private void BtnPin_Click(object sender, EventArgs e)
         {
             isPinned = !isPinned; // Toggle pin state
             this.TopMost = isPinned; // Update TopMost property
-            btnPin.Text = isPinned ? "📌" : "📍"; // Update button text (pinned vs unpinned symbol)
+            btnPin.Text = isPinned ? "📌" : "📍"; // Update button text
         }
 
         private void Undo()
@@ -163,10 +239,10 @@ namespace LocalStickyNotes
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveNote(); // Backup save on close
+            SaveNote(); // Save note content
+            SaveSettings(); // Save size, position, and font size
         }
 
-        // Dragging logic for the title bar
         // Dragging logic for the title bar
         private void TitleBarPanel_MouseDown(object sender, MouseEventArgs e)
         {

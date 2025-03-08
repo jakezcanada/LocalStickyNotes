@@ -19,3 +19,6 @@ C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\obj\Release\LocalStickyNot
 C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\obj\Release\LocalStickyNotes.csproj.CoreCompileInputs.cache
 C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\obj\Release\LocalStickyNotes.exe
 C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\obj\Release\LocalStickyNotes.pdb
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\bin\Release\Newtonsoft.Json.dll
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\bin\Release\Newtonsoft.Json.xml
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\obj\Release\LocalSti.AE78B59C.Up2Date
