@@ -1,0 +1,10 @@
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\bin\Debug\LocalStickyNotes.exe.config
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\bin\Debug\LocalStickyNotes.exe
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\bin\Debug\LocalStickyNotes.pdb
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.csproj.AssemblyReference.cache
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.Form1.resources
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.Properties.Resources.resources
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.csproj.GenerateResource.cache
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.csproj.CoreCompileInputs.cache
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.exe
+C:\Users\Jake\Documents\Github Stuff\LocalStickyNotes\LocalStickyNotes\obj\Debug\LocalStickyNotes.pdb
